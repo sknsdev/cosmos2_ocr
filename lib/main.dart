@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ocr_cosmos2/screens/login_screen.dart';
+import 'package:ocr_cosmos2/router/go_router.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,14 +10,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
+      routerConfig: goRouterCustom,
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
     );
   }
 }

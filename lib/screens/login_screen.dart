@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ocr_cosmos2/components/common/my_button.dart';
 import 'package:ocr_cosmos2/components/common/my_textfield.dart';
-import 'package:ocr_cosmos2/screens/main_screen.dart';
+import 'package:ocr_cosmos2/router/go_router.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
@@ -29,13 +29,7 @@ class LoginScreen extends StatelessWidget {
 // кпнока для перехода на следующую страницу при успешной валидации формы
   void signInUser(BuildContext context) {
     if (_formKey.currentState!.validate()) {
-      // Your logic for signing in the user
-      // For the sake of demonstration, let's assume validation is successful
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => const MainScreen()), // Navigate to MainScreen
-      );
+      goRouterCustom.go('/main_screen');
     }
   }
 
@@ -46,52 +40,55 @@ class LoginScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Form(
           key: _formKey,
-          child: Column(
-            children: [
-              // logo
-              const SizedBox(height: 50),
-              const Icon(
-                Icons.lock,
-                size: 100,
-              ),
-
-              // welcome back, you've been missed!
-              const SizedBox(height: 50),
-              Text(
-                'Welcome back, you\'ve been missed!',
-                style: TextStyle(
-                  color: Colors.grey[700],
-                  fontSize: 16,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 25),
+            child: Column(
+              children: [
+                // logo
+                const SizedBox(height: 50),
+                const Icon(
+                  Icons.lock,
+                  size: 100,
                 ),
-              ),
-              const SizedBox(height: 25),
 
-              // username text field
-              MyTextField(
-                controller: usernameController,
-                labelText: 'Username',
-                obscureText: false,
-                validator: validateUsername,
-              ),
+                // welcome back, you've been missed!
+                const SizedBox(height: 50),
+                Text(
+                  'Welcome back, you\'ve been missed!',
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 25),
 
-              const SizedBox(height: 25),
+                // username text field
+                MyTextField(
+                  controller: usernameController,
+                  labelText: 'Username',
+                  obscureText: false,
+                  validator: validateUsername,
+                ),
 
-              // password text field
-              MyTextField(
-                controller: passwordController,
-                labelText: 'Password',
-                obscureText: true,
-                validator: validatePassword,
-              ),
+                const SizedBox(height: 25),
 
-              const SizedBox(height: 50),
+                // password text field
+                MyTextField(
+                  controller: passwordController,
+                  labelText: 'Password',
+                  obscureText: true,
+                  validator: validatePassword,
+                ),
 
-              // sign in button
-              MyButton(
-                title: 'Sign-in',
-                onTap: () => signInUser(context),
-              ),
-            ],
+                const SizedBox(height: 50),
+
+                // sign in button
+                MyButton(
+                  title: 'Sign-in',
+                  onTap: () => signInUser(context),
+                )
+              ],
+            ),
           ),
         ),
       ),
