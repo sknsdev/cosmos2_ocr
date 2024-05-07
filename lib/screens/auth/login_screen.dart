@@ -67,7 +67,7 @@ class LoginScreen extends StatelessWidget {
                   controller: usernameController,
                   labelText: 'Username',
                   obscureText: false,
-                  validator: validateUsername,
+                  // validator: validateUsername,
                 ),
 
                 const SizedBox(height: 25),
@@ -77,7 +77,7 @@ class LoginScreen extends StatelessWidget {
                   controller: passwordController,
                   labelText: 'Password',
                   obscureText: true,
-                  validator: validatePassword,
+                  // validator: validatePassword,
                 ),
 
                 const SizedBox(height: 50),

@@ -1,6 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:ocr_cosmos2/screens/camera/camera.dart';
+import 'package:ocr_cosmos2/features/camera.dart';
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});

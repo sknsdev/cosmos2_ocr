@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:external_path/external_path.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:media_scanner/media_scanner.dart';
+import 'package:image/image.dart' as img;
 
 class Camera extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -21,16 +23,44 @@ class _CameraState extends State<Camera> {
   bool isFlashOn = false;
   bool isRearCamera = true;
 
+  final double imgWidth = 312;
+  final double imgHeight = 104;
+
   Future<File> saveImage(XFile image) async {
-    final downlaodPath = await ExternalPath.getExternalStoragePublicDirectory(
+    final downloadPath = await ExternalPath.getExternalStoragePublicDirectory(
         ExternalPath.DIRECTORY_DOWNLOADS);
     final fileName = '${DateTime.now().millisecondsSinceEpoch}.png';
-    final file = File('$downlaodPath/$fileName');
+    final file = File('$downloadPath/$fileName');
 
-    try {
-      await file.writeAsBytes(await image.readAsBytes());
-    } catch (_) {}
+    // Read image file as a list of bytes
+    List<int> imageBytes = await image.readAsBytes();
+    img.Image? originalImage = img.decodeImage(imageBytes);
 
+    // Calculate the scale between the captured image and the display size
+    final double scaleX =
+        originalImage!.width / MediaQuery.of(context).size.width;
+    final double scaleY =
+        originalImage.height / MediaQuery.of(context).size.height;
+
+    // Calculate the crop dimensions to match the red border, applying the scale factor
+    int cropX =
+        ((MediaQuery.of(context).size.width / 2 - imgWidth / 2) * scaleX)
+            .toInt();
+    int cropY =
+        ((MediaQuery.of(context).size.height / 2 - imgHeight / 2) * scaleY)
+            .toInt();
+    int cropWidth = (imgWidth * scaleX).toInt();
+    int cropHeight = (imgHeight * scaleY).toInt();
+
+    // Ensure cropping within the image bounds
+    cropX = cropX.clamp(0, originalImage.width - cropWidth);
+    cropY = cropY.clamp(0, originalImage.height - cropHeight);
+
+    img.Image croppedImage =
+        img.copyCrop(originalImage, cropX, cropY, cropWidth, cropHeight);
+
+    // Encode the cropped image to PNG and save to disk
+    await file.writeAsBytes(img.encodePng(croppedImage));
     return file;
   }
 
@@ -42,6 +72,7 @@ class _CameraState extends State<Camera> {
       return;
     }
 
+    // FLASH MODE
     if (isFlashOn == false) {
       await cameraController.setFlashMode(FlashMode.off);
     } else {
@@ -59,13 +90,19 @@ class _CameraState extends State<Camera> {
     setState(() {
       imagesList.add(file);
     });
+
+    if (kDebugMode) {
+      print('IMAGE $image'); // IMAGE Instance of 'XFile'
+      print('IMAGE PATH ${image.path}'); // .../cache/CAP5727844755284016842.jpg
+    }
+
     MediaScanner.loadMedia(path: file.path);
   }
 
   void startCamera(int camera) {
     cameraController = CameraController(
       widget.cameras[camera],
-      ResolutionPreset.high,
+      ResolutionPreset.medium,
       enableAudio: false,
     );
     cameraValue = cameraController.initialize();
@@ -191,6 +228,17 @@ class _CameraState extends State<Camera> {
               ),
             ),
           ),
+          // Оверлей для красной рамки
+          Align(
+            alignment: Alignment.center,
+            child: Container(
+              width: imgWidth,
+              height: imgHeight,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.red, width: 3.0),
+              ),
+            ),
+          ),
           Align(
             alignment: Alignment.bottomLeft,
             child: Column(
@@ -215,8 +263,8 @@ class _CameraState extends State<Camera> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(10),
                               child: Image(
-                                height: 100,
-                                width: 100,
+                                height: 104,
+                                width: 312,
                                 opacity: const AlwaysStoppedAnimation(07),
                                 image: FileImage(
                                   File(imagesList[index].path),
@@ -229,7 +277,7 @@ class _CameraState extends State<Camera> {
                       ),
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ),

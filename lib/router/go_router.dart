@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ocr_cosmos2/screens/auth/login_screen.dart';
 import 'package:ocr_cosmos2/screens/camera/camera_screen.dart';
 import 'package:ocr_cosmos2/screens/camera/gallery_screen.dart';
-import 'package:ocr_cosmos2/screens/login_screen.dart';
 import 'package:ocr_cosmos2/screens/main_screen.dart';
 
 final _key = GlobalKey<NavigatorState>();
