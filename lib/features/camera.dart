@@ -17,20 +17,25 @@ class Camera extends StatefulWidget {
 }
 
 class _CameraState extends State<Camera> {
-  late CameraController cameraController;
-  late Future<void> cameraValue;
-  List<File> imagesList = [];
-  bool isFlashOn = false;
-  bool isRearCamera = true;
+  late CameraController cameraController; // Контроллер камеры
+  late Future<void> cameraValue; // Инициализация камеры
+  List<File> imagesList = []; // Список изображений
+  bool isFlashOn = false; // Флаг для включения/выключения
+  bool isRearCamera = true; // Флаг для выбора передней или задней камеры
 
+  // Параметры для кадрирования
   final double imgWidth = 312;
   final double imgHeight = 104;
 
   Future<File> saveImage(XFile image) async {
     final downloadPath = await ExternalPath.getExternalStoragePublicDirectory(
         ExternalPath.DIRECTORY_DOWNLOADS);
+
+    // Create a new file in the download directory
     final fileName = '${DateTime.now().millisecondsSinceEpoch}.png';
     final file = File('$downloadPath/$fileName');
+
+    // Мега функция для сохранения изображения во временное хранилище и кадрирование в новый файл
 
     // Read image file as a list of bytes
     List<int> imageBytes = await image.readAsBytes();
@@ -64,6 +69,7 @@ class _CameraState extends State<Camera> {
     return file;
   }
 
+  // Функция для запуска камеры
   void takePicture() async {
     XFile? image;
 
@@ -108,12 +114,14 @@ class _CameraState extends State<Camera> {
     cameraValue = cameraController.initialize();
   }
 
+  // Запуск камеры
   @override
   void initState() {
     startCamera(0);
     super.initState();
   }
 
+  // Завершение работы камеры
   @override
   void dispose() {
     cameraController.dispose();
