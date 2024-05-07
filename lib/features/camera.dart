@@ -31,23 +31,17 @@ class _CameraState extends State<Camera> {
     final downloadPath = await ExternalPath.getExternalStoragePublicDirectory(
         ExternalPath.DIRECTORY_DOWNLOADS);
 
-    // Create a new file in the download directory
     final fileName = '${DateTime.now().millisecondsSinceEpoch}.png';
     final file = File('$downloadPath/$fileName');
 
-    // Мега функция для сохранения изображения во временное хранилище и кадрирование в новый файл
-
-    // Read image file as a list of bytes
     List<int> imageBytes = await image.readAsBytes();
     img.Image? originalImage = img.decodeImage(imageBytes);
 
-    // Calculate the scale between the captured image and the display size
     final double scaleX =
         originalImage!.width / MediaQuery.of(context).size.width;
     final double scaleY =
         originalImage.height / MediaQuery.of(context).size.height;
 
-    // Calculate the crop dimensions to match the red border, applying the scale factor
     int cropX =
         ((MediaQuery.of(context).size.width / 2 - imgWidth / 2) * scaleX)
             .toInt();
@@ -57,12 +51,40 @@ class _CameraState extends State<Camera> {
     int cropWidth = (imgWidth * scaleX).toInt();
     int cropHeight = (imgHeight * scaleY).toInt();
 
-    // Ensure cropping within the image bounds
     cropX = cropX.clamp(0, originalImage.width - cropWidth);
     cropY = cropY.clamp(0, originalImage.height - cropHeight);
 
     img.Image croppedImage =
         img.copyCrop(originalImage, cropX, cropY, cropWidth, cropHeight);
+
+    img.Image resizedImage = img.copyResize(croppedImage,
+        width: imgWidth.toInt(), height: imgHeight.toInt());
+
+    List<List<List<double>>> normalizedRgbMatrix = [];
+    for (int y = 0; y < resizedImage.height; y++) {
+      List<List<double>> row = [];
+      for (int x = 0; x < resizedImage.width; x++) {
+        int pixel = resizedImage.getPixel(x, y);
+        List<double> rgb = [
+          (img.getRed(pixel) / 255.0),
+          (img.getGreen(pixel) / 255.0),
+          (img.getBlue(pixel) / 255.0)
+        ];
+        row.add(rgb);
+      }
+      normalizedRgbMatrix.add(row);
+    }
+
+    // Storing as a batched list
+
+    if (kDebugMode) {
+      print(
+          'Размер матрицы: 1 x ${resizedImage.height} x ${resizedImage.width} x 3');
+    }
+
+    if (kDebugMode) {
+      print('Normalized RGB Matrix: $normalizedRgbMatrix');
+    }
 
     // Encode the cropped image to PNG and save to disk
     await file.writeAsBytes(img.encodePng(croppedImage));
